@@ -1,0 +1,76 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.vez {
+    font-size: 26px;
+}
+
+.tabuleiro {
+    display: grid;
+    border: 1px solid black;
+    margin: 20px 0 20px;
+}
+
+.casa {
+    border: 1px solid black;
+    font-size: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
+.promover {
+    width: 100dvw;
+    height: 100dvh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 1;
+    background: radial-gradient(transparent, gray);
+}
+
+.conteiner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: gainsboro;
+    box-shadow: 0 0 1000px 100px gray;
+    padding: 22px;
+    gap: 10px;
+    border-radius: 20px;
+}
+
+.pecas {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: 100px;
+    gap: 10px;
+}
+
+.peca {
+    display: flex;
+    border: 1px solid black;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 80px;
+}
