@@ -1,39 +1,3 @@
-let TB = [
-    ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
-    ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-    ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
-];
-
-const TH = document.getElementById("tabuleiro");
-TH.style.cssText = `
-grid-template-columns: repeat(${TB[0].length}, 50px);
-grid-template-rows: repeat(${TB.length}, 50px);
-`;
-
-const mensagem = document.getElementById("vez");
-const reiniciar = document.getElementById("reiniciar");
-const desfazer = document.getElementById("desfazer");
-const sla = document.getElementById("sla");
-const telaPromocao = document.getElementById("promover");
-const escolherPromocao = document.querySelectorAll(".peca");
-
-let historicoTB = [];
-historicoTB.push(
-    [["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
-    ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-    ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]]
-);
-
 const pecasP = [
     { nome: "Peão Preto", conteudo: "♟" },
     { nome: "Rei Preto", conteudo: "♚" },
@@ -51,6 +15,54 @@ const pecasB = [
     { nome: "Cavalo Branco", conteudo: "♘" },
     { nome: "Torre Branco", conteudo: "♖" }
 ];
+
+let TB = [
+    [`${pecasP[5].conteudo}`, `${pecasP[4].conteudo}`, `${pecasP[3].conteudo}`, `${pecasP[2].conteudo}`, `${pecasP[1].conteudo}`, `${pecasP[3].conteudo}`, `${pecasP[4].conteudo}`, `${pecasP[5].conteudo}`],
+    [`${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`, `${pecasP[0].conteudo}`],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    [`${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`, `${pecasB[0].conteudo}`],
+    [`${pecasB[5].conteudo}`, `${pecasB[4].conteudo}`, `${pecasB[3].conteudo}`, `${pecasB[2].conteudo}`, `${pecasB[1].conteudo}`, `${pecasB[3].conteudo}`, `${pecasB[4].conteudo}`, `${pecasB[5].conteudo}`]
+];
+
+const TH = document.getElementById("tabuleiro");
+TH.style.cssText = `
+grid-template-columns: repeat(${TB[0].length}, 50px);
+grid-template-rows: repeat(${TB.length}, 50px);
+`;
+
+const mensagem = document.getElementById("vez");
+const reiniciar = document.getElementById("reiniciar");
+const desfazer = document.getElementById("desfazer");
+const sla = document.getElementById("sla");
+const telaPromocao = document.getElementById("promover");
+
+let historicoTB = [
+    [["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
+    ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+    ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]]
+];
+
+let historicoMov = [];
+//  [{ P: "", M: "", ANT: { L: "", C: "" }, AT: { L: "", C: "" } }]
+
+let pecasMortas = [];
+// [{ P: "", M: "", L: "", C: "" }]
+
+let jogadorAtual = "Branca";
+let jogoON = true;
+let casaEscolhida = {
+    Linha: "",
+    Coluna: "",
+    Conteudo: ""
+};
 
 const Regras = [
     (peao) => {
@@ -99,6 +111,8 @@ const Regras = [
         const linha = parseInt(rei.className.slice(-2, -1))
         const coluna = parseInt(rei.className.slice(-1));
         const LTM = TB.length;
+        const mov = parseInt(rei.className.slice(5, 6));
+        console.log(mov)
 
         if (rei.textContent === pecasP[1].conteudo) {
             if ((linha - 1) >= 0 && TB[(linha - 1)][coluna] === "") {  // PRA CIMA
@@ -115,12 +129,33 @@ const Regras = [
             // ----------------------------------------------------------------------------------------------------------------------------------------- //
             if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === "") {  // PRA ESQUERDA
                 TB[linha].splice((coluna - 1), 1, "▪");
+                if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === "▪" && mov === 1) {
+                    if ((coluna - 2) >= 0 && TB[linha][coluna - 2] === "") {
+                        if ((coluna - 3) >= 0 && TB[linha][coluna - 3] === "") {
+                            let torreMOV = document.querySelector(`.casa_${linha}${(coluna - 4)}`);
+                            if ((coluna - 4) >= 0 && TB[linha][coluna - 4] === pecasP[5].conteudo && torreMOV.className.slice(5, 6) == 1) {
+                                TB[linha].splice((coluna - 2), 1, "▪");
+                                document.querySelector(`.casa_${linha}${coluna - 2}`).style.color = "green"
+                                console.log(document.querySelector(`.casa_${linha}${coluna - 2}`))
+                            };
+                        };
+                    };
+                };
             } else if ((coluna - 1) >= 0 && (TB[linha][(coluna - 1)] === pecasB[0].conteudo || TB[linha][(coluna - 1)] === pecasB[1].conteudo || TB[linha][(coluna - 1)] === pecasB[2].conteudo || TB[linha][(coluna - 1)] === pecasB[3].conteudo || TB[linha][(coluna - 1)] === pecasB[4].conteudo || TB[linha][(coluna - 1)] === pecasB[5].conteudo)) {
                 document.querySelector(`.casa_${linha}${coluna - 1}`).style.cssText = "background-color: red; cursor: pointer;"
             };
             // ----------------------------------------------------------------------------------------------------------------------------------------- //
             if ((coluna + 1) < LTM && TB[linha][coluna + 1] === "") {  // PRA DIREITA
                 TB[linha].splice((coluna + 1), 1, "▪");
+                if ((coluna + 1) >= 0 && TB[linha][coluna + 1] === "▪" && mov === 1) {
+                    if ((coluna + 2) >= 0 && TB[linha][coluna + 2] === "") {
+                        let torreMOV = document.querySelector(`.casa_${linha}${(coluna + 3)}`);
+                        if ((coluna + 3) >= 0 && TB[linha][coluna + 3] === pecasP[5].conteudo && torreMOV.className.slice(5, 6) == 1) {
+                            TB[linha].splice((coluna + 2), 1, "▪");
+                            document.querySelector(`.casa_${linha}${coluna + 2}`).style.color = "green"
+                        };
+                    };
+                };
             } else if ((coluna + 1) < LTM && (TB[linha][(coluna + 1)] === pecasB[0].conteudo || TB[linha][(coluna + 1)] === pecasB[1].conteudo || TB[linha][(coluna + 1)] === pecasB[2].conteudo || TB[linha][(coluna + 1)] === pecasB[3].conteudo || TB[linha][(coluna + 1)] === pecasB[4].conteudo || TB[linha][(coluna + 1)] === pecasB[5].conteudo)) {
                 document.querySelector(`.casa_${linha}${coluna + 1}`).style.cssText = "background-color: red; cursor: pointer;"
             };
@@ -164,12 +199,32 @@ const Regras = [
             // ----------------------------------------------------------------------------------------------------------------------------------------- //
             if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === "") {  // PRA ESQUERDA
                 TB[linha].splice((coluna - 1), 1, "▪");
+                if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === "▪" && mov === 1) {
+                    if ((coluna - 2) >= 0 && TB[linha][coluna - 2] === "") {
+                        if ((coluna - 3) >= 0 && TB[linha][coluna - 3] === "") {
+                            let torreMOV = document.querySelector(`.casa_${linha}${(coluna - 4)}`);
+                            if ((coluna - 4) >= 0 && TB[linha][coluna - 4] === pecasB[5].conteudo && torreMOV.className.slice(5, 6) == 1) {
+                                TB[linha].splice((coluna - 2), 1, "▪");
+                                document.querySelector(`.casa_${linha}${coluna - 2}`).style.color = "green"
+                            };
+                        }
+                    };
+                };
             } else if ((coluna - 1) >= 0 && (TB[linha][(coluna - 1)] === pecasP[0].conteudo || TB[linha][(coluna - 1)] === pecasP[1].conteudo || TB[linha][(coluna - 1)] === pecasP[2].conteudo || TB[linha][(coluna - 1)] === pecasP[3].conteudo || TB[linha][(coluna - 1)] === pecasP[4].conteudo || TB[linha][(coluna - 1)] === pecasP[5].conteudo)) {
                 document.querySelector(`.casa_${linha}${coluna - 1}`).style.cssText = "background-color: red; cursor: pointer;"
             };
             // ----------------------------------------------------------------------------------------------------------------------------------------- //
             if ((coluna + 1) < LTM && TB[linha][coluna + 1] === "") {  // PRA DIREITA
                 TB[linha].splice((coluna + 1), 1, "▪");
+                if ((coluna + 1) >= 0 && TB[linha][coluna + 1] === "▪" && mov === 1) {
+                    if ((coluna + 2) >= 0 && TB[linha][coluna + 2] === "") {
+                        let torreMOV = document.querySelector(`.casa_${linha}${(coluna + 3)}`);
+                        if ((coluna + 3) >= 0 && TB[linha][coluna + 3] === pecasB[5].conteudo && torreMOV.className.slice(5, 6) == 1) {
+                            TB[linha].splice((coluna + 2), 1, "▪");
+                            document.querySelector(`.casa_${linha}${coluna + 2}`).style.color = "green"
+                        };
+                    };
+                };
             } else if ((coluna + 1) < LTM && (TB[linha][(coluna + 1)] === pecasP[0].conteudo || TB[linha][(coluna + 1)] === pecasP[1].conteudo || TB[linha][(coluna + 1)] === pecasP[2].conteudo || TB[linha][(coluna + 1)] === pecasP[3].conteudo || TB[linha][(coluna + 1)] === pecasP[4].conteudo || TB[linha][(coluna + 1)] === pecasP[5].conteudo)) {
                 document.querySelector(`.casa_${linha}${coluna + 1}`).style.cssText = "background-color: red; cursor: pointer;"
             };
@@ -912,33 +967,34 @@ const Regras = [
     }
 ];
 
-let jogadorAtual = "Branca";
-let jogoON = true;
-let casaEscolhida = {
-    Linha: "",
-    Coluna: "",
-    Conteudo: ""
-};
-
-function carregarTabuleiro() {
-    for (let linha = 0; linha < TB.length; linha++) {
-        for (let coluna = 0; coluna < TB[0].length; coluna++) {
+function carregarTabuleiro(tabuleiro) {
+    for (let linha = 0; linha < tabuleiro.length; linha++) {
+        for (let coluna = 0; coluna < tabuleiro[0].length; coluna++) {
             const casa = document.createElement("div");
-            casa.textContent = TB[linha][coluna];
+            casa.textContent = tabuleiro[linha][coluna];
 
             if (casa.textContent === pecasB[0].conteudo || casa.textContent === pecasP[0].conteudo) {
-                casa.className = `casa 1 casa_${linha}${coluna}`;
+                casa.className = `casa 1 casa_${linha}${coluna}`; // Verificar Peão
+            } else if (casa.textContent === pecasB[1].conteudo || casa.textContent === pecasP[1].conteudo) {
+                casa.className = `casa 1 casa_${linha}${coluna}`; // Verificar Rei
+            } else if (casa.textContent === pecasB[5].conteudo || casa.textContent === pecasP[5].conteudo) {
+                casa.className = `casa 1 casa_${linha}${coluna}`; // Verificar Torre
             } else {
-                casa.className = `casa casa_${linha}${coluna}`;
+                casa.className = `casa casa_${linha}${coluna}`
             };
-            if ((linha + coluna) % 2) { casa.style.cssText = "background-color: skyblue;" };
-            if ((linha + coluna) % 2 === 0) { casa.style.cssText = "background-color: white;" };
-            if (casa.textContent != "") { casa.style.cssText += " cursor: pointer;" };
+            if ((linha + coluna) % 2) {
+                casa.style.cssText = "background-color: skyblue;"
+            };
+            if ((linha + coluna) % 2 === 0) {
+                casa.style.cssText = "background-color: white;"
+            };
+            if (casa.textContent != "") {
+                casa.style.cssText += " cursor: pointer;"
+            };
 
             TH.appendChild(casa);
         };
     };
-
     document.querySelectorAll(".casa").forEach(peca => {
         peca.onclick = () => {
             const linha = parseInt(peca.className.slice(-2, -1));
@@ -958,10 +1014,44 @@ function carregarTabuleiro() {
                     };
                 };
 
-                if (peca.textContent === "▪" || peca.style.cssText.slice(0, 22) === "background-color: red;") {
-                    TB[linha].splice(coluna, 1, casaEscolhida.Conteudo);
+                if (peca.textContent === "▪" || peca.style.backgroundColor === "red") {
+                    const casaAnterior = document.querySelector(`.casa_${casaEscolhida.Linha}${casaEscolhida.Coluna}`);
+                    const casaAtual = document.querySelector(`.casa_${linha}${coluna}`);
+                    let mov = parseInt(casaAnterior.className.slice(5, 6));
+
+                    if (peca.style.color === "green") {
+                        if (coluna === 6) { // Direita do Rei Preto
+                            let torre = document.querySelector(`.casa_${linha}${coluna + 1}`);
+                            let num = parseInt(torre.className.slice(5, 6));
+                            TB[linha].splice((coluna + 1), 1, "");
+                            TB[linha].splice((coluna - 1), 1, torre.textContent);
+                            document.querySelector(`.casa_${linha}${coluna - 1}`).className = `casa ${num + 1} casa_${linha}${coluna - 1}`
+
+                            console.log(torre, num);
+                        } else if (coluna === 2) { // Esquerda do Rei Preto
+                            let torre = document.querySelector(`.casa_${linha}${coluna - 2}`);
+                            let num = parseInt(torre.className.slice(5, 6));
+                            TB[linha].splice((coluna - 2), 1, "");
+                            TB[linha].splice((coluna + 1), 1, torre.textContent);
+                            document.querySelector(`.casa_${linha}${coluna + 1}`).className = `casa ${num + 1} casa_${linha}${coluna + 1}`
+
+                            console.log(torre, num);
+                        }
+                    };;
+
+                    if (peca.style.cssText.slice(0, 22) === "background-color: red;") {
+                        pecasMortas.push({ P: conteudo, M: parseInt(casaAtual.className.slice(5, 6)), L: linha, C: coluna });
+                        console.log(pecasMortas);
+                    };
+                    if (casaEscolhida.Conteudo === pecasB[0].conteudo || casaEscolhida.Conteudo === pecasB[1].conteudo || casaEscolhida.Conteudo === pecasB[5].conteudo) {
+                        casaAnterior.className = `casa casa_${casaEscolhida.Linha}${casaEscolhida.Coluna}`;
+                        casaAtual.className = `casa ${mov + 1} casa_${linha}${coluna}`;
+                    };
 
                     TB[casaEscolhida.Linha].splice(casaEscolhida.Coluna, 1, "");
+                    TB[linha].splice(coluna, 1, casaEscolhida.Conteudo);
+
+                    historicoMov.push({ P: casaEscolhida.Conteudo, M: mov, ANT: { L: casaEscolhida.Linha, C: casaEscolhida.Coluna }, AT: { L: linha, C: coluna } });
 
                     jogadorAtual = "Preta";
 
@@ -972,6 +1062,9 @@ function carregarTabuleiro() {
                     resetCores(TB);
                     verificarVitória(TB);
                     salvarTabuleiro(TB);
+                    verificarPromocao(TB);
+
+                    console.log(historicoMov);
                 };
             } else if (jogadorAtual === "Preta" && jogoON) {
                 for (let num = 0; num < Regras.length; num++) {
@@ -986,10 +1079,41 @@ function carregarTabuleiro() {
                     };
                 };
 
-                if (peca.textContent === "▪" || peca.style.cssText.slice(0, 22) === "background-color: red;") {
-                    TB[linha].splice(coluna, 1, casaEscolhida.Conteudo);
+                if (peca.textContent === "▪" || peca.style.backgroundColor === "red") {
+                    const casaAnterior = document.querySelector(`.casa_${casaEscolhida.Linha}${casaEscolhida.Coluna}`);
+                    const casaAtual = document.querySelector(`.casa_${linha}${coluna}`);
+                    const mov = parseInt(casaAnterior.className.slice(5, 6));
+
+                    if (peca.style.color === "green") {
+                        if (coluna === 6) { // Direita do Rei Preto
+                            let torre = document.querySelector(`.casa_${linha}${coluna + 1}`);
+                            let num = parseInt(torre.className.slice(5, 6));
+                            TB[linha].splice((coluna + 1), 1, "");
+                            TB[linha].splice((coluna - 1), 1, torre.textContent);
+                            document.querySelector(`.casa_${linha}${coluna - 1}`).className = `casa ${num + 1} casa_${linha}${coluna - 1}`
+                        } else if (coluna === 2) { // Esquerda do Rei Preto
+                            let torre = document.querySelector(`.casa_${linha}${coluna - 2}`);
+                            let num = parseInt(torre.className.slice(5, 6));
+                            TB[linha].splice((coluna - 2), 1, "");
+                            TB[linha].splice((coluna + 1), 1, torre.textContent);
+                            document.querySelector(`.casa_${linha}${coluna + 1}`).className = `casa ${num + 1} casa_${linha}${coluna + 1}`
+                        }
+                    };
+
+
+                    if (peca.style.backgroundColor === "red") {
+                        pecasMortas.push({ P: conteudo, M: parseInt(casaAtual.className.slice(5, 6)), L: linha, C: coluna });
+                        console.log(pecasMortas);
+                    };
+                    if (casaEscolhida.Conteudo === pecasP[0].conteudo || casaEscolhida.Conteudo === pecasP[1].conteudo || casaEscolhida.Conteudo === pecasP[5].conteudo) {
+                        casaAnterior.className = `casa casa_${casaEscolhida.Linha}${casaEscolhida.Coluna}`;
+                        casaAtual.className = `casa ${mov + 1} casa_${linha}${coluna}`;
+                    };
 
                     TB[casaEscolhida.Linha].splice(casaEscolhida.Coluna, 1, "");
+                    TB[linha].splice(coluna, 1, casaEscolhida.Conteudo);
+
+                    historicoMov.push({ P: casaEscolhida.Conteudo, M: mov, ANT: { L: casaEscolhida.Linha, C: casaEscolhida.Coluna }, AT: { L: linha, C: coluna } });
 
                     jogadorAtual = "Branca";
 
@@ -1000,6 +1124,9 @@ function carregarTabuleiro() {
                     resetCores(TB);
                     verificarVitória(TB);
                     salvarTabuleiro(TB);
+                    verificarPromocao(TB);
+
+                    console.log(historicoMov);
                 };
             };
             atualizarTabuleiro(TB);
@@ -1016,38 +1143,39 @@ function carregarTabuleiro() {
             ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
             ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
         ];
+        historicoTB = [TB];
+        historicoMov = [];
         jogadorAtual = "Branca";
         mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
+        for (let numL = 0; numL < TB.length; numL++) {
+            for (let numC = 0; numC < TB[0].length; numC++) {
+                const casa = document.querySelector(`.casa_${numL}${numC}`);
+                if (TB[numL][numC] === pecasB[0].conteudo || TB[numL][numC] === pecasP[0].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Peão
+                } else if (TB[numL][numC] === pecasB[1].conteudo || TB[numL][numC] === pecasP[1].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Rei
+                } else if (TB[numL][numC] === pecasB[5].conteudo || TB[numL][numC] === pecasP[5].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Torre
+                } else {
+                    casa.className = `casa casa_${numL}${numC}`
+                };
+            };
+        };
         resetCores(TB);
         atualizarTabuleiro(TB);
     };
     desfazer.onclick = () => {
         desfazerMovimento(historicoTB, jogoON);
     };
-    sla.onclick = () => {
-        if(TB[0].includes(pecasB[0].conteudo)) {
-            telaPromocao.style.display = "flex";
-        };
-        if(TB[7].includes(pecasP[0].conteudo)) {
-            telaPromocao.style.display = "flex";
-        };
-    };
-    escolherPromocao.forEach(btn => {
-        btn.onclick = () => {
-            console.log(btn.textContent)
-            telaPromocao.style.display = "none"
-        }
-    });
 };
-
 
 function atualizarTabuleiro(tabuleiro) {
     for (let l = 0; l < tabuleiro.length; l++) {
         for (let c = 0; c < tabuleiro.length; c++) {
             let home = document.querySelector(`.casa_${l}${c}`);
             home.textContent = TB[l][c]
-            if (home.textContent === "▪") { home.style.cssText += "cursor: pointer;" }
-            if (TH.style.transform === "scaleY(-1)") { home.style.transform = "scaleY(-1)" };
+            if (home.textContent === "▪") { home.style.cssText += "cursor: pointer;" };
+            /* if (TH.style.transform === "scaleY(-1)") { home.style.transform = "scaleY(-1)" }; */
         };
     };
 };
@@ -1123,11 +1251,48 @@ function desfazerMovimento(tabuleiro, jogoAtivo) {
             ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
             ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]]
         ];
+        historicoMov = [];
         jogadorAtual = "Branca";
         mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
+        for (let numL = 0; numL < TB.length; numL++) {
+            for (let numC = 0; numC < TB[0].length; numC++) {
+                const casa = document.querySelector(`.casa_${numL}${numC}`);
+                if (TB[numL][numC] === pecasB[0].conteudo || TB[numL][numC] === pecasP[0].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Peão
+                } else if (TB[numL][numC] === pecasB[1].conteudo || TB[numL][numC] === pecasP[1].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Rei
+                } else if (TB[numL][numC] === pecasB[5].conteudo || TB[numL][numC] === pecasP[5].conteudo) {
+                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Torre
+                } else {
+                    casa.className = `casa casa_${numL}${numC}`
+                };
+            };
+        };
     } else if (mov > 0 && jogoAtivo) {
         TB = historicoTB[mov];
         historicoTB.pop();
+
+        let Casa = historicoMov[historicoMov.length - 1];
+        if (Casa.P === pecasB[0].conteudo || Casa.P === pecasP[0].conteudo) {
+            document.querySelector(`.casa_${Casa.AT.L}${Casa.AT.C}`).className = `casa casa_${Casa.AT.L}${Casa.AT.C}`;
+            document.querySelector(`.casa_${Casa.ANT.L}${Casa.ANT.C}`).className = `casa ${Casa.M} casa_${Casa.ANT.L}${Casa.ANT.C}`;
+        } else if (Casa.P === pecasB[1].conteudo || Casa.P === pecasP[1].conteudo) {
+            document.querySelector(`.casa_${Casa.AT.L}${Casa.AT.C}`).className = `casa casa_${Casa.AT.L}${Casa.AT.C}`;
+            document.querySelector(`.casa_${Casa.ANT.L}${Casa.ANT.C}`).className = `casa ${Casa.M} casa_${Casa.ANT.L}${Casa.ANT.C}`;
+        } else if (Casa.P === pecasB[5].conteudo || Casa.P === pecasP[5].conteudo) {
+            document.querySelector(`.casa_${Casa.AT.L}${Casa.AT.C}`).className = `casa casa_${Casa.AT.L}${Casa.AT.C}`;
+            document.querySelector(`.casa_${Casa.ANT.L}${Casa.ANT.C}`).className = `casa ${Casa.M} casa_${Casa.ANT.L}${Casa.ANT.C}`;
+        };
+
+        if (TB[Casa.AT.L][Casa.AT.C] != "") {
+            console.log(TB[Casa.AT.L][Casa.AT.C]);
+            let PMs = pecasMortas[pecasMortas.length - 1];
+            console.log(PMs);
+            document.querySelector(`.casa_${PMs.L}${PMs.C}`).className = `casa ${PMs.M == "NaN" ? "" : PMs.M} casa_${PMs.L}${PMs.C}`;
+        };
+        pecasMortas.pop();
+        historicoMov.pop();
+
         if (jogadorAtual === "Branca") {
             jogadorAtual = "Preta";
             mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
@@ -1141,5 +1306,34 @@ function desfazerMovimento(tabuleiro, jogoAtivo) {
     atualizarTabuleiro(TB);
 };
 
-carregarTabuleiro();
+function verificarPromocao(tabuleiro) {
+    const promocao = "";
+    if (tabuleiro[0].includes(pecasB[0].conteudo)) {
+        let index = tabuleiro[0].indexOf(pecasB[0].conteudo)
+        if (tabuleiro[0][index] === pecasB[0].conteudo) {
+            telaPromocao.style.display = "flex";
+            console.log("Ok")
+            document.querySelectorAll(".peca").forEach(btn => {
+                btn.onclick = () => {
+                    console.log(btn.textContent)
+                    telaPromocao.style.display = "none"
+                };
+            });
+        };
+    };
+    if (tabuleiro[7].includes(pecasP[0].conteudo)) {
+        telaPromocao.style.display = "flex";
+        let index = tabuleiro[0].indexOf(pecasP[0].conteudo);
+        if (tabuleiro[7][index] === pecasP[0].conteudo) {
+            console.log(tabuleiro[0].indexOf(pecasP[0].conteudo))
+            document.querySelectorAll(".peca").forEach(btn => {
+                btn.onclick = () => {
+                    console.log(btn.textContent)
+                    telaPromocao.style.display = "none"
+                };
+            });
+        };
+    };
+};
 
+carregarTabuleiro(TB);
