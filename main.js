@@ -78,6 +78,20 @@ const Regras = [
                     TB[linha + 2].splice(coluna, 1, "▪");
                 };
             };
+            if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
+                let peaoLadoEsq = document.querySelector(`.casa_${linha}${coluna - 1}`)
+                if (peaoLadoEsq.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoEsq.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna - 1) === historicoMov[historicoMov.length - 1].AT.C) {
+                    TB[linha + 1].splice((coluna - 1), 1, "▪");
+                    document.querySelector(`.casa_${linha + 1}${coluna - 1}`).style.color = "red";
+                };
+            };
+            if ((coluna + 1) < LTM && TB[linha][coluna + 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
+                let peaoLadoDir = document.querySelector(`.casa_${linha}${coluna + 1}`);
+                if (peaoLadoDir.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoDir.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna + 1) === historicoMov[historicoMov.length - 1].AT.C) {
+                    TB[linha + 1].splice((coluna + 1), 1, "▪");
+                    document.querySelector(`.casa_${linha + 1}${coluna + 1}`).style.color = "red";
+                };
+            };
             // ------------------- Ataque do peao preto nas diagonais -------------------------------------
             for (let num = 0; num < pecasB.length; num++) {
                 if ((linha + 1) < LTM && (coluna - 1) >= 0 && TB[linha + 1][coluna - 1] === pecasB[num].conteudo) {
@@ -94,6 +108,20 @@ const Regras = [
 
                 if ((linha - 2) >= 0 && TB[(linha - 2)][coluna] === "" && peao.className.slice(5, 6) == 1) {   // Só no primeiro movimento do peão branco
                     TB[(linha - 2)].splice(coluna, 1, "▪");
+                };
+            };
+            if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
+                let peaoLadoEsq = document.querySelector(`.casa_${linha}${coluna - 1}`)
+                if (peaoLadoEsq.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoEsq.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna - 1) === historicoMov[historicoMov.length - 1].AT.C) {
+                    TB[linha - 1].splice((coluna - 1), 1, "▪");
+                    document.querySelector(`.casa_${linha - 1}${coluna - 1}`).style.color = "red";
+                };
+            };
+            if ((coluna + 1) < LTM && TB[linha][coluna + 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
+                let peaoLadoDir = document.querySelector(`.casa_${linha}${coluna + 1}`);
+                if (peaoLadoDir.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoDir.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna + 1) === historicoMov[historicoMov.length - 1].AT.C) {
+                    TB[linha - 1].splice((coluna + 1), 1, "▪");
+                    document.querySelector(`.casa_${linha - 1}${coluna + 1}`).style.color = "red";
                 };
             };
             // ------------------- Ataque do peão branco na diagonal --------------------------------------
@@ -1037,9 +1065,16 @@ function carregarTabuleiro(tabuleiro) {
 
                             console.log(torre, num);
                         }
-                    };;
+                    };
 
-                    if (peca.style.cssText.slice(0, 22) === "background-color: red;") {
+                    if (peca.style.color === "red" && casaEscolhida.Conteudo === pecasB[0].conteudo) {
+                        let peao = document.querySelector(`.casa_${linha + 1}${coluna}`)
+                        pecasMortas.push({ P: peao.textContent, M: parseInt(peao.className.slice(5, 6)), L: (linha + 1), C: coluna });
+                        TB[linha + 1].splice(coluna, 1, "");
+                        console.log(pecasMortas);
+                    };
+
+                    if (peca.style.backgroundColor === "red") {
                         pecasMortas.push({ P: conteudo, M: parseInt(casaAtual.className.slice(5, 6)), L: linha, C: coluna });
                         console.log(pecasMortas);
                     };
@@ -1097,9 +1132,15 @@ function carregarTabuleiro(tabuleiro) {
                             TB[linha].splice((coluna - 2), 1, "");
                             TB[linha].splice((coluna + 1), 1, torre.textContent);
                             document.querySelector(`.casa_${linha}${coluna + 1}`).className = `casa ${num + 1} casa_${linha}${coluna + 1}`
-                        }
+                        };
                     };
 
+                    if (peca.style.color === "red" && casaEscolhida.Conteudo === pecasP[0].conteudo) {
+                        let peao = document.querySelector(`.casa_${linha - 1}${coluna}`)
+                        pecasMortas.push({ P: peao.textContent, M: parseInt(peao.className.slice(5, 6)), L: (linha - 1), C: coluna });
+                        TB[linha - 1].splice(coluna, 1, "");
+                        console.log(pecasMortas);
+                    };
 
                     if (peca.style.backgroundColor === "red") {
                         pecasMortas.push({ P: conteudo, M: parseInt(casaAtual.className.slice(5, 6)), L: linha, C: coluna });
@@ -1133,36 +1174,7 @@ function carregarTabuleiro(tabuleiro) {
         };
     });
     reiniciar.onclick = () => {
-        TB = [
-            ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
-            ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", ""],
-            ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-            ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
-        ];
-        historicoTB = [TB];
-        historicoMov = [];
-        jogadorAtual = "Branca";
-        mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
-        for (let numL = 0; numL < TB.length; numL++) {
-            for (let numC = 0; numC < TB[0].length; numC++) {
-                const casa = document.querySelector(`.casa_${numL}${numC}`);
-                if (TB[numL][numC] === pecasB[0].conteudo || TB[numL][numC] === pecasP[0].conteudo) {
-                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Peão
-                } else if (TB[numL][numC] === pecasB[1].conteudo || TB[numL][numC] === pecasP[1].conteudo) {
-                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Rei
-                } else if (TB[numL][numC] === pecasB[5].conteudo || TB[numL][numC] === pecasP[5].conteudo) {
-                    casa.className = `casa 1 casa_${numL}${numC}`; // Verificar Torre
-                } else {
-                    casa.className = `casa casa_${numL}${numC}`
-                };
-            };
-        };
-        resetCores(TB);
-        atualizarTabuleiro(TB);
+        location.reload()
     };
     desfazer.onclick = () => {
         desfazerMovimento(historicoTB, jogoON);
