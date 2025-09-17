@@ -36,7 +36,7 @@ grid-template-rows: repeat(${TB.length}, 50px);
 const mensagem = document.getElementById("vez");
 const reiniciar = document.getElementById("reiniciar");
 const desfazer = document.getElementById("desfazer");
-const sla = document.getElementById("sla");
+const inverter = document.getElementById("inverter");
 const telaPromocao = document.getElementById("promover");
 
 let historicoTB = [
@@ -78,14 +78,14 @@ const Regras = [
                     TB[linha + 2].splice(coluna, 1, "▪");
                 };
             };
-            if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
+            if (linha === 4 && (coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
                 let peaoLadoEsq = document.querySelector(`.casa_${linha}${coluna - 1}`)
                 if (peaoLadoEsq.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoEsq.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna - 1) === historicoMov[historicoMov.length - 1].AT.C) {
                     TB[linha + 1].splice((coluna - 1), 1, "▪");
                     document.querySelector(`.casa_${linha + 1}${coluna - 1}`).style.color = "red";
                 };
             };
-            if ((coluna + 1) < LTM && TB[linha][coluna + 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
+            if (linha === 4 && (coluna + 1) < LTM && TB[linha][coluna + 1] === pecasB[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
                 let peaoLadoDir = document.querySelector(`.casa_${linha}${coluna + 1}`);
                 if (peaoLadoDir.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoDir.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna + 1) === historicoMov[historicoMov.length - 1].AT.C) {
                     TB[linha + 1].splice((coluna + 1), 1, "▪");
@@ -110,14 +110,14 @@ const Regras = [
                     TB[(linha - 2)].splice(coluna, 1, "▪");
                 };
             };
-            if ((coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
+            if (linha === 3 && (coluna - 1) >= 0 && TB[linha][coluna - 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à esquerda
                 let peaoLadoEsq = document.querySelector(`.casa_${linha}${coluna - 1}`)
                 if (peaoLadoEsq.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoEsq.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna - 1) === historicoMov[historicoMov.length - 1].AT.C) {
                     TB[linha - 1].splice((coluna - 1), 1, "▪");
                     document.querySelector(`.casa_${linha - 1}${coluna - 1}`).style.color = "red";
                 };
             };
-            if ((coluna + 1) < LTM && TB[linha][coluna + 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
+            if (linha === 3 && (coluna + 1) < LTM && TB[linha][coluna + 1] === pecasP[0].conteudo) {   // Verificando se é o primeiro movimento do peao à direita
                 let peaoLadoDir = document.querySelector(`.casa_${linha}${coluna + 1}`);
                 if (peaoLadoDir.textContent === historicoMov[historicoMov.length - 1].P && peaoLadoDir.className.slice(5, 6) == 2 && linha === historicoMov[historicoMov.length - 1].AT.L && (coluna + 1) === historicoMov[historicoMov.length - 1].AT.C) {
                     TB[linha - 1].splice((coluna + 1), 1, "▪");
@@ -1179,6 +1179,9 @@ function carregarTabuleiro(tabuleiro) {
     desfazer.onclick = () => {
         desfazerMovimento(historicoTB, jogoON);
     };
+    inverter.onclick = () => {
+        inverterTabuleiro(jogadorAtual, jogoON)
+    };
 };
 
 function atualizarTabuleiro(tabuleiro) {
@@ -1187,7 +1190,7 @@ function atualizarTabuleiro(tabuleiro) {
             let home = document.querySelector(`.casa_${l}${c}`);
             home.textContent = TB[l][c]
             if (home.textContent === "▪") { home.style.cssText += "cursor: pointer;" };
-            /* if (TH.style.transform === "scaleY(-1)") { home.style.transform = "scaleY(-1)" }; */
+            if (TH.style.transform === "scaleY(-1)") { home.style.transform = "scaleY(-1)" };
         };
     };
 };
@@ -1234,14 +1237,17 @@ function verificarVitória(tabuleiro) {
 };
 
 function inverterTabuleiro(jogador, jogoAtivo) {
-    if (jogador === "Branca" && jogoAtivo) {
-        TH.style.transform = "scaleY(1)";
-    } else if (jogador === "Preta" && jogoAtivo) {
+    if (jogador === "Branca" && jogoAtivo && historicoMov.length === 0) {
+        jogadorAtual = "Preta";
+        mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
         TH.style.transform = "scaleY(-1)";
-        document.querySelectorAll(".casa").forEach(c => {
-            c.style.transform = "scaleY(-1)"
-        });
+    } else if (jogador === "Preta" && jogoAtivo && historicoMov.length === 0) {
+        jogadorAtual = "Branca";
+        mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
+        TH.style.transform = "scaleY(1)";
     };
+    resetCores(TB);
+    atualizarTabuleiro(TB);
 };
 
 function salvarTabuleiro(tabuleiro) {
@@ -1319,29 +1325,55 @@ function desfazerMovimento(tabuleiro, jogoAtivo) {
 };
 
 function verificarPromocao(tabuleiro) {
-    const promocao = "";
+    let promocao = "";
     if (tabuleiro[0].includes(pecasB[0].conteudo)) {
         let index = tabuleiro[0].indexOf(pecasB[0].conteudo)
         if (tabuleiro[0][index] === pecasB[0].conteudo) {
             telaPromocao.style.display = "flex";
             console.log("Ok")
             document.querySelectorAll(".peca").forEach(btn => {
+                if (btn.textContent === "D") {
+                    btn.textContent = pecasB[2].conteudo;
+                } else if (btn.textContent === "B") {
+                    btn.textContent = pecasB[3].conteudo;
+                } else if (btn.textContent === "C") {
+                    btn.textContent = pecasB[4].conteudo;
+                } else {
+                    btn.textContent = pecasB[5].conteudo;
+                };
                 btn.onclick = () => {
-                    console.log(btn.textContent)
-                    telaPromocao.style.display = "none"
+                    console.log(btn.textContent);
+                    telaPromocao.style.display = "none";
+                    TB[0][index] = btn.textContent;
+                    salvarTabuleiro(TB);
+                    atualizarTabuleiro(TB);
                 };
             });
         };
     };
     if (tabuleiro[7].includes(pecasP[0].conteudo)) {
         telaPromocao.style.display = "flex";
-        let index = tabuleiro[0].indexOf(pecasP[0].conteudo);
+        let index = tabuleiro[7].indexOf(pecasP[0].conteudo);
         if (tabuleiro[7][index] === pecasP[0].conteudo) {
-            console.log(tabuleiro[0].indexOf(pecasP[0].conteudo))
+            let peao = document.querySelector(`.casa_${7}${index}`);
             document.querySelectorAll(".peca").forEach(btn => {
+                if (btn.textContent === "D") {
+                    btn.textContent = pecasP[2].conteudo;
+                } else if (btn.textContent === "B") {
+                    btn.textContent = pecasP[3].conteudo;
+                } else if (btn.textContent === "C") {
+                    btn.textContent = pecasP[4].conteudo;
+                } else {
+                    btn.textContent = pecasP[5].conteudo;
+                };
+                console.log(btn.textContent);
                 btn.onclick = () => {
-                    console.log(btn.textContent)
-                    telaPromocao.style.display = "none"
+                    telaPromocao.style.display = "none";
+                    TB[7][index] = btn.textContent;
+                    pecasMortas.push({ P: peao.textContent, M: parseInt(peao.className.slice(5, 6)), L: peao.className.slice(-2, -1), C: peao.className.slice(-1) });
+                    console.log(historicoMov)
+                    salvarTabuleiro(TB);
+                    atualizarTabuleiro(TB);
                 };
             });
         };
