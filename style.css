@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
 }
 
 body {
@@ -38,7 +39,7 @@ body {
 .promover {
     width: 100dvw;
     height: 100dvh;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     position: absolute;
