@@ -1028,7 +1028,6 @@ function carregarTabuleiro(tabuleiro) {
             const linha = parseInt(peca.className.slice(-2, -1));
             const coluna = parseInt(peca.className.slice(-1));
             const conteudo = peca.textContent;
-
             if (jogadorAtual === "Branca" && jogoON) {
                 for (let num = 0; num < Regras.length; num++) {
                     if (peca.textContent === pecasB[num].conteudo) {
@@ -1038,7 +1037,12 @@ function carregarTabuleiro(tabuleiro) {
                         casaEscolhida.Coluna = coluna;
                         casaEscolhida.Conteudo = conteudo;
 
-                        Regras[num](peca);
+                        if (verificarMate(TB, jogadorAtual) || num === 1) {
+                            console.log("O rei está em Mate, você só pode mexer o Rei Branco");
+                            Regras[1](peca);
+                        } else {
+                            Regras[num](peca);
+                        };
                     };
                 };
 
@@ -1092,14 +1096,10 @@ function carregarTabuleiro(tabuleiro) {
 
                     mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
 
-                    /* if (verificarVitória(TB)) { inverterTabuleiro(jogadorAtual, jogoON) }; */
-
                     resetCores(TB);
                     verificarVitória(TB);
                     salvarTabuleiro(TB);
                     verificarPromocao(TB);
-
-                    console.log(historicoMov);
                 };
             } else if (jogadorAtual === "Preta" && jogoON) {
                 for (let num = 0; num < Regras.length; num++) {
@@ -1110,7 +1110,12 @@ function carregarTabuleiro(tabuleiro) {
                         casaEscolhida.Coluna = parseInt(peca.className.slice(-1));
                         casaEscolhida.Conteudo = peca.textContent;
 
-                        Regras[num](peca);
+                        if (verificarMate(TB, jogadorAtual) || num === 1) {
+                            console.log("O rei está em Mate, você só pode mexer o Rei Preto");
+                            Regras[1](peca);
+                        } else {
+                            Regras[num](peca);
+                        };
                     };
                 };
 
@@ -1160,14 +1165,10 @@ function carregarTabuleiro(tabuleiro) {
 
                     mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
 
-                    /* if (verificarVitória(TB)) { inverterTabuleiro(jogadorAtual, jogoON) }; */
-
                     resetCores(TB);
                     verificarVitória(TB);
                     salvarTabuleiro(TB);
                     verificarPromocao(TB);
-
-                    console.log(historicoMov);
                 };
             };
             atualizarTabuleiro(TB);
@@ -1305,8 +1306,13 @@ function desfazerMovimento(tabuleiro, jogoAtivo) {
         if (TB[Casa.AT.L][Casa.AT.C] != "") {
             console.log(TB[Casa.AT.L][Casa.AT.C]);
             let PMs = pecasMortas[pecasMortas.length - 1];
-            console.log(PMs);
-            document.querySelector(`.casa_${PMs.L}${PMs.C}`).className = `casa ${PMs.M == "NaN" ? "" : PMs.M} casa_${PMs.L}${PMs.C}`;
+            console.log(PMs)
+            if (PMs != undefined) {
+                console.log(PMs);
+                console.log("Linha: " + PMs.L);
+                console.log("Coluna: " + PMs.C);
+                document.querySelector(`.casa_${PMs.L}${PMs.C}`).className = `casa ${PMs.M == "NaN" ? "" : PMs.M} casa_${PMs.L}${PMs.C}`;
+            };
         };
         pecasMortas.pop();
         historicoMov.pop();
@@ -1319,24 +1325,22 @@ function desfazerMovimento(tabuleiro, jogoAtivo) {
             mensagem.textContent = `Vez das Peças ${jogadorAtual}s`;
         };
     };
-    /* inverterTabuleiro(jogadorAtual, jogoON); */
     resetCores(TB);
     atualizarTabuleiro(TB);
 };
 
 function verificarPromocao(tabuleiro) {
-    let promocao = "";
     if (tabuleiro[0].includes(pecasB[0].conteudo)) {
         let index = tabuleiro[0].indexOf(pecasB[0].conteudo)
         if (tabuleiro[0][index] === pecasB[0].conteudo) {
             telaPromocao.style.display = "flex";
             console.log("Ok")
             document.querySelectorAll(".peca").forEach(btn => {
-                if (btn.textContent === "D") {
+                if (btn.className.slice(-1) === "D") {
                     btn.textContent = pecasB[2].conteudo;
-                } else if (btn.textContent === "B") {
+                } else if (btn.className.slice(-1) === "B") {
                     btn.textContent = pecasB[3].conteudo;
-                } else if (btn.textContent === "C") {
+                } else if (btn.className.slice(-1) === "C") {
                     btn.textContent = pecasB[4].conteudo;
                 } else {
                     btn.textContent = pecasB[5].conteudo;
@@ -1345,6 +1349,7 @@ function verificarPromocao(tabuleiro) {
                     console.log(btn.textContent);
                     telaPromocao.style.display = "none";
                     TB[0][index] = btn.textContent;
+
                     salvarTabuleiro(TB);
                     atualizarTabuleiro(TB);
                 };
@@ -1357,11 +1362,11 @@ function verificarPromocao(tabuleiro) {
         if (tabuleiro[7][index] === pecasP[0].conteudo) {
             let peao = document.querySelector(`.casa_${7}${index}`);
             document.querySelectorAll(".peca").forEach(btn => {
-                if (btn.textContent === "D") {
+                if (btn.className.slice(-1) === "D") {
                     btn.textContent = pecasP[2].conteudo;
-                } else if (btn.textContent === "B") {
+                } else if (btn.className.slice(-1) === "B") {
                     btn.textContent = pecasP[3].conteudo;
-                } else if (btn.textContent === "C") {
+                } else if (btn.className.slice(-1) === "C") {
                     btn.textContent = pecasP[4].conteudo;
                 } else {
                     btn.textContent = pecasP[5].conteudo;
@@ -1376,6 +1381,209 @@ function verificarPromocao(tabuleiro) {
                     atualizarTabuleiro(TB);
                 };
             });
+        };
+    };
+};
+
+function verificarMate(Tabuleiro, jogador) {
+    let Linha = 0;
+    let Coluna = 0;
+    let Limite = Tabuleiro.length;
+    let C = true; let B = true; let E = true; let D = true;
+    let Se = true; let Sd = true; let Ie = true; let Id = true;
+    let cavalo = true;
+    let Mate = false;
+    if (jogador === "Branca") {
+        for (let L = 0; L < Limite; L++) {
+            if (Tabuleiro[L].includes(pecasB[1].conteudo)) {
+                const C = Tabuleiro[L].indexOf(pecasB[1].conteudo);
+                Linha = L;
+                Coluna = C;
+            };
+        };
+        for (let num = 1; num < Tabuleiro.length; num++) {
+            if ((Linha - num) >= 0 && Tabuleiro[Linha - num][Coluna] != "" && C) {
+                if (Tabuleiro[Linha - num][Coluna] === pecasP[1].conteudo || Tabuleiro[Linha - num][Coluna] === pecasP[2].conteudo || Tabuleiro[Linha - num][Coluna] === pecasP[5].conteudo) {
+                    Mate = true;
+                };
+                C = false;
+            };
+            if ((Linha + num) < Limite && Tabuleiro[Linha + num][Coluna] != "" && B) {
+                if (Tabuleiro[Linha + num][Coluna] === pecasP[1].conteudo || Tabuleiro[Linha + num][Coluna] === pecasP[2].conteudo || Tabuleiro[Linha + num][Coluna] === pecasP[5].conteudo) {
+                    Mate = true;
+                };
+                B = false;
+            };
+            if ((Coluna - num) >= 0 && Tabuleiro[Linha][Coluna - num] != "" && E) {
+                if (Tabuleiro[Linha][Coluna - num] === pecasP[1].conteudo || Tabuleiro[Linha][Coluna - num] === pecasP[2].conteudo || Tabuleiro[Linha][Coluna - num] === pecasP[5].conteudo) {
+                    Mate = true;
+                };
+                E = false;
+            };
+            if ((Coluna + num) < Limite && Tabuleiro[Linha][Coluna + num] != "" && D) {
+                if (Tabuleiro[Linha][Coluna - num] === pecasP[1].conteudo || Tabuleiro[Linha][Coluna - num] === pecasP[2].conteudo || Tabuleiro[Linha][Coluna - num] === pecasP[5].conteudo) {
+                    Mate = true;
+                };
+                D = false;
+            };
+
+            if ((Linha - num) >= 0 && (Coluna - num) >= 0 && Tabuleiro[Linha - num][Coluna - num] != "" && Se) {
+                if (Tabuleiro[Linha - num][Coluna - num] === pecasP[1].conteudo || Tabuleiro[Linha - num][Coluna - num] === pecasP[2].conteudo || Tabuleiro[Linha - num][Coluna - num] === pecasP[3].conteudo) {
+                    Mate = true;
+                };
+                Se = false;
+            };
+            if ((Linha - num) >= 0 && (Coluna + num) < Limite && Tabuleiro[Linha - num][Coluna + num] != "" && Sd) {
+                if (Tabuleiro[Linha - num][Coluna + num] === pecasP[1].conteudo || Tabuleiro[Linha - num][Coluna + num] === pecasP[2].conteudo || Tabuleiro[Linha - num][Coluna + num] === pecasP[3].conteudo) {
+                    Mate = true;
+                };
+                Sd = false;
+            };
+            if ((Linha + num) < Limite && (Coluna - num) >= 0 && Tabuleiro[Linha + num][Coluna - num] != "" && Ie) {
+                if (Tabuleiro[Linha + num][Coluna - num] === pecasP[1].conteudo || Tabuleiro[Linha + num][Coluna - num] === pecasP[2].conteudo || Tabuleiro[Linha + num][Coluna - num] === pecasP[3].conteudo) {
+                    Mate = true;
+                };
+                Ie = false;
+            };
+            if ((Linha + num) < Limite && (Coluna + num) < Limite && Tabuleiro[Linha + num][Coluna + num] != "" && Id) {
+                if (Tabuleiro[Linha + num][Coluna + num] === pecasP[1].conteudo || Tabuleiro[Linha + num][Coluna + num] === pecasP[2].conteudo || Tabuleiro[Linha + num][Coluna + num] === pecasP[3].conteudo) {
+                    Mate = true;
+                };
+                Id = false;
+            };
+
+            if ((Linha - 2) >= 0 && (Coluna - 1) >= 0 && Tabuleiro[Linha - 2][Coluna - 1] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha - 2) >= 0 && (Coluna + 1) < Limite && Tabuleiro[Linha - 2][Coluna + 1] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha + 2) < Limite && (Coluna - 1) >= 0 && Tabuleiro[Linha + 2][Coluna - 1] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 2) < Limite && (Coluna + 1) < Limite && Tabuleiro[Linha + 2][Coluna + 1] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha - 1) >= 0 && (Coluna - 2) >= 0 && Tabuleiro[Linha - 1][Coluna - 2] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 1) < Limite && (Coluna - 2) >= 0 && Tabuleiro[Linha + 1][Coluna - 2] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha - 1) >= 0 && (Coluna + 2) < Limite && Tabuleiro[Linha - 1][Coluna + 2] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 1) < Limite && (Coluna + 2) < Limite && Tabuleiro[Linha + 1][Coluna + 2] === pecasP[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+        };
+        if (Mate) {
+            console.log("Rei Branco está em Mate!");
+            console.log(Mate);
+            return Mate
+        } else {
+            console.log("Rei Branco está Livre!");
+            console.log(Mate);
+            return Mate
+        };
+    } else {
+        for (let L = 0; L < Limite; L++) {
+            if (Tabuleiro[L].includes(pecasP[1].conteudo)) {
+                const C = Tabuleiro[L].indexOf(pecasP[1].conteudo);
+                Linha = L;
+                Coluna = C;
+            };
+        };
+        for (let num = 1; num < Tabuleiro.length; num++) {
+            if ((Linha - num) >= 0 && Tabuleiro[Linha - num][Coluna] != "" && C) {
+                if (Tabuleiro[Linha - num][Coluna] === pecasB[1].conteudo || Tabuleiro[Linha - num][Coluna] === pecasB[2].conteudo || Tabuleiro[Linha - num][Coluna] === pecasB[5].conteudo) {
+                    Mate = true;
+                };
+                C = false;
+            };
+            if ((Linha + num) < Limite && Tabuleiro[Linha + num][Coluna] != "" && B) {
+                if (Tabuleiro[Linha + num][Coluna] === pecasB[1].conteudo || Tabuleiro[Linha + num][Coluna] === pecasB[2].conteudo || Tabuleiro[Linha + num][Coluna] === pecasB[5].conteudo) {
+                    Mate = true;
+                };
+                B = false;
+            };
+            if ((Coluna - num) >= 0 && Tabuleiro[Linha][Coluna - num] != "" && E) {
+                if (Tabuleiro[Linha][Coluna - num] === pecasB[1].conteudo || Tabuleiro[Linha][Coluna - num] === pecasB[2].conteudo || Tabuleiro[Linha][Coluna - num] === pecasB[5].conteudo) {
+                    Mate = true;
+                };
+                E = false;
+            };
+            if ((Coluna + num) < Limite && Tabuleiro[Linha][Coluna + num] != "" && D) {
+                if (Tabuleiro[Linha][Coluna - num] === pecasB[1].conteudo || Tabuleiro[Linha][Coluna - num] === pecasB[2].conteudo || Tabuleiro[Linha][Coluna - num] === pecasB[5].conteudo) {
+                    Mate = true;
+                };
+                D = false;
+            };
+
+            if ((Linha - num) >= 0 && (Coluna - num) >= 0 && Tabuleiro[Linha - num][Coluna - num] != "" && Se) {
+                if (Tabuleiro[Linha - num][Coluna - num] === pecasB[1].conteudo || Tabuleiro[Linha - num][Coluna - num] === pecasB[2].conteudo || Tabuleiro[Linha - num][Coluna - num] === pecasB[3].conteudo) {
+                    Mate = true;
+                };
+                Se = false;
+            };
+            if ((Linha - num) >= 0 && (Coluna + num) < Limite && Tabuleiro[Linha - num][Coluna + num] != "" && Sd) {
+                if (Tabuleiro[Linha - num][Coluna + num] === pecasB[1].conteudo || Tabuleiro[Linha - num][Coluna + num] === pecasB[2].conteudo || Tabuleiro[Linha - num][Coluna + num] === pecasB[3].conteudo) {
+                    Mate = true;
+                };
+                Sd = false;
+            };
+            if ((Linha + num) < Limite && (Coluna - num) >= 0 && Tabuleiro[Linha + num][Coluna - num] != "" && Ie) {
+                if (Tabuleiro[Linha + num][Coluna - num] === pecasB[1].conteudo || Tabuleiro[Linha + num][Coluna - num] === pecasB[2].conteudo || Tabuleiro[Linha + num][Coluna - num] === pecasB[3].conteudo) {
+                    Mate = true;
+                };
+                Ie = false;
+            };
+            if ((Linha + num) < Limite && (Coluna + num) < Limite && Tabuleiro[Linha + num][Coluna + num] != "" && Id) {
+                if (Tabuleiro[Linha + num][Coluna + num] === pecasB[1].conteudo || Tabuleiro[Linha + num][Coluna + num] === pecasB[2].conteudo || Tabuleiro[Linha + num][Coluna + num] === pecasB[3].conteudo) {
+                    Mate = true;
+                };
+                Id = false;
+            };
+
+            if ((Linha - 2) >= 0 && (Coluna - 1) >= 0 && Tabuleiro[Linha - 2][Coluna - 1] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha - 2) >= 0 && (Coluna + 1) < Limite && Tabuleiro[Linha - 2][Coluna + 1] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha + 2) < Limite && (Coluna - 1) >= 0 && Tabuleiro[Linha + 2][Coluna - 1] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 2) < Limite && (Coluna + 1) < Limite && Tabuleiro[Linha + 2][Coluna + 1] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha - 1) >= 0 && (Coluna - 2) >= 0 && Tabuleiro[Linha - 1][Coluna - 2] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 1) < Limite && (Coluna - 2) >= 0 && Tabuleiro[Linha + 1][Coluna - 2] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+
+            if ((Linha - 1) >= 0 && (Coluna + 2) < Limite && Tabuleiro[Linha - 1][Coluna + 2] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+            if ((Linha + 1) < Limite && (Coluna + 2) < Limite && Tabuleiro[Linha + 1][Coluna + 2] === pecasB[4].conteudo && cavalo) {
+                cavalo = false;
+            };
+        };
+        if (Mate) {
+            console.log("Rei Preto está em Mate!");
+            console.log(Mate);
+            return Mate
+        } else {
+            console.log("Rei Preto está Livre!");
+            console.log(Mate);
+            return Mate
         };
     };
 };
