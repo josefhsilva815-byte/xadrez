@@ -36,8 +36,15 @@ body {
     text-align: center;
 }
 
+.botoes {
+    display: flex;
+    width: 400px;
+    justify-content: space-around;
+    gap: 20px;
+}
+
 .promover {
-    width: 100dvw;
+    width: 100vw;
     height: 100dvh;
     display: none;
     justify-content: center;
