@@ -1588,4 +1588,123 @@ function verificarMate(Tabuleiro, jogador) {
     };
 };
 
+function verificarDefesaDoRei(tabuleiro, linha, coluna, jogador) {
+    let LTM = tabuleiro.length;
+    let num = 1;
+    let emCima = false; let emBaixo = false; let ladoDireito = false; let ladoEsquerdo = false;
+    let supDireito = false; let supEsquerdo = false; let infDireito = false; let infEsquerdo = false;
+
+    const casa = (numL, numC) => { return documento.querySelector(`.casa_${numL}${numC}`).className.slice(0, 4); };
+    const movCasa = (numL, numC) => {
+        if (parseInt(documento.querySelector(`.casa_${numL}${numC}`).className.slice(5, 6)) == "NaN") {
+            return "";
+        } else {
+            return parseInt(documento.querySelector(`.casa_${numL}${numC}`).className.slice(5, 6));
+        };
+    };
+    const posicao = (numL, numC) => { return documento.querySelector(`.casa_${numL}${numC}`).className.slice(-7); };
+
+
+    if (jogador === "Branca") { // Se for o Rei das Peças Brancas
+        if ((linha - num) >= 0 && tabuleiro[linha - num][coluna] != "" && !emCima) {
+            if (tabuleiro[linha - num][coluna] === pecasB[2].conteudo || tabuleiro[linha - num][coluna] === pecasB[5].conteudo) {
+                emCima = true;
+            };
+        };
+        if ((linha + num) < LTM && tabuleiro[linha + num][coluna] != "" && !emBaixo) {
+            if (tabuleiro[linha + num][coluna] === pecasB[0].conteudo && num === 1) {
+                emBaixo = true;
+                casa = documento.querySelector(`.casa_${linha + num}${coluna}`).className.slice(0, 4);
+
+            } else if (tabuleiro[linha + num][coluna] === pecasB[2].conteudo || tabuleiro[linha + num][coluna] === pecasB[5].conteudo) {
+                emBaixo = true;
+            };
+        };
+        if ((coluna - num) >= 0 && tabuleiro[linha][coluna - num] != "" && !ladoDireito) {
+            if (tabuleiro[linha][coluna - num] === pecasB[2].conteudo || tabuleiro[linha][coluna - num] === pecasB[5].conteudo) {
+                ladoDireito = true;
+            };
+        };
+        if ((coluna + num) < LTM && tabuleiro[linha][coluna + num] != "" && !ladoEsquerdo) {
+            if (tabuleiro[linha][coluna + num] === pecasB[2].conteudo || tabuleiro[linha][coluna + num] === pecasB[5].conteudo) {
+                ladoEsquerdo = true;
+            };
+        };
+
+
+        if ((linha - num) >= 0 && (coluna + num) < LTM && tabuleiro[linha - num][coluna + num] != "" && !supDireito) {
+            if (tabuleiro[linha - num][coluna + num] === pecasB[2].conteudo || tabuleiro[linha - num][coluna + num] === pecasB[3].conteudo) {
+                supDireito = true;
+            };
+        };
+        if ((linha - num) >= 0 && (coluna - num) >= 0 && tabuleiro[linha - num][coluna - num] != "" && !supEsquerdo) {
+            if (tabuleiro[linha - num][coluna - num] === pecasB[2].conteudo || tabuleiro[linha - num][coluna - num] === pecasB[3].conteudo) {
+                supEsquerdo = true;
+            };
+        };
+        if ((linha + num) < LTM && (coluna + num) < LTM && tabuleiro[linha + num][coluna + num] != "" && !infDireito) {
+            if (tabuleiro[linha + num][coluna + num] === pecasB[2].conteudo || tabuleiro[linha + num][coluna + num] === pecasB[3].conteudo) {
+                infDireito = true;
+            };
+        };
+        if ((linha + num) < LTM && (coluna - num) >= 0 && tabuleiro[linha + num][coluna - num] != "" && !infEsquerdo) {
+            if (tabuleiro[linha + num][coluna - num] === pecasB[2].conteudo || tabuleiro[linha + num][coluna - num] === pecasB[3].conteudo) {
+                infEsquerdo = true;
+            };
+        };
+    } else if (jogador === "Preta") { // Se for o Rei das Peças Pretas
+        if ((linha - num) >= 0 && tabuleiro[linha - num][coluna] != "" && !emCima) {
+            if (tabuleiro[linha - num][coluna] === pecasP[2].conteudo || tabuleiro[linha - num][coluna] === pecasP[5].conteudo) {
+                emCima = true;
+            };
+        };
+        if ((linha + num) < LTM && tabuleiro[linha + num][coluna] != "" && !emBaixo) {
+            if (tabuleiro[linha + num][coluna] === pecasP[0].conteudo && num === 1) {
+                emBaixo = true;
+                document.querySelector(``).className
+            } else if (tabuleiro[linha + num][coluna] === pecasP[2].conteudo || tabuleiro[linha + num][coluna] === pecasP[5].conteudo) {
+                emBaixo = true;
+            }
+        };
+        if ((coluna - num) >= 0 && tabuleiro[linha][coluna - num] != "" && !ladoDireito) {
+            if (tabuleiro[linha][coluna - num] === pecasP[2].conteudo || tabuleiro[linha][coluna - num] === pecasP[5].conteudo) {
+                ladoDireito = true;
+            };
+        };
+        if ((coluna + num) < LTM && tabuleiro[linha][coluna + num] != "" && !ladoEsquerdo) {
+            if (tabuleiro[linha][coluna + num] === pecasP[2].conteudo || tabuleiro[linha][coluna + num] === pecasP[5].conteudo) {
+                ladoEsquerdo = true;
+            };
+        };
+
+        if ((linha - num) >= 0 && (coluna + num) < LTM && tabuleiro[linha - num][coluna + num] != "" && !supDireito) {
+            if (tabuleiro[linha - num][coluna + num] === pecasP[2].conteudo || tabuleiro[linha - num][coluna + num] === pecasP[3].conteudo) {
+                supDireito = true;
+            };
+        };
+        if ((linha - num) >= 0 && (coluna - num) >= 0 && tabuleiro[linha - num][coluna - num] != "" && !supEsquerdo) {
+            if (tabuleiro[linha - num][coluna - num] === pecasP[2].conteudo || tabuleiro[linha - num][coluna - num] === pecasP[3].conteudo) {
+                supEsquerdo = true;
+            };
+        };
+        if ((linha + num) < LTM && (coluna + num) < LTM && tabuleiro[linha + num][coluna + num] != "" && !infDireito) {
+            if (tabuleiro[linha + num][coluna + num] === pecasP[2].conteudo || tabuleiro[linha + num][coluna + num] === pecasP[3].conteudo) {
+                infDireito = true;
+            };
+        };
+        if ((linha + num) < LTM && (coluna - num) >= 0 && tabuleiro[linha + num][coluna - num] != "" && !infEsquerdo) {
+            if (tabuleiro[linha + num][coluna - num] === pecasP[2].conteudo || tabuleiro[linha + num][coluna - num] === pecasP[3].conteudo) {
+                infEsquerdo = true;
+            };
+        };
+    };
+};
+
 carregarTabuleiro(TB);
+
+let casa = document.querySelector(".casa_67").className.slice(0, 4);
+let posicao = document.querySelector(".casa_67").className.slice(-7);
+console.log(casa)
+console.log(posicao)
+
+// document.querySelector(".casa_67").className = `${casa} true ${posicao}`
